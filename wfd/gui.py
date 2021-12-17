@@ -1,4 +1,4 @@
-"""Created By xirosum for entertainment purposes"""
+"""Created by xirosum for entertainment purposes"""
 
 import pygame
 import json
@@ -10,19 +10,20 @@ class Enemy:
         self.health = 10              # hp
         self.color = (255,0,0)        # color the enemy uses to spawn may use different colors for different types
         self.position = position      # current position
-        self.size = 7                # may have the size change with health
+        self.size = 7                 # may have the size change with health
         self.speed = 1                # units per second
         self.next_block = next_block  # used for path finding
         self.last_moved = 0
 
 class Tower:
     def __init__(self, position):
-        self.strength = 1 # damage per hit
-        self.range = 3    # 3 in game units range
-        self.speed = 1000    # one attack per second
+        self.strength = 1        # damage per hit
+        self.range = 3           # 3 in game units range
+        self.speed = 1000        # one attack per second
         self.position = position
         self.last_fired = 0
         self.enemy_in_range = False
+        self.enemies_in_range = []
 
 
 class App:
@@ -38,7 +39,7 @@ class App:
          self.grid = {}
          self.path = []
 
-         #utilities
+         # utilities
          self.colors = {
          0 : (255,255,255), # white
          1 : (255,0,0),     # red
@@ -66,7 +67,7 @@ class App:
          self.enemy_logic = {
          "last spawned" : 0,
          "enemies" : [] ,
-         "spawn timer" : 5000, #in milliseconds
+         "spawn timer" : 3000, #in milliseconds
          }
 
          self.tick_speed = 100
@@ -209,8 +210,7 @@ class App:
 
      def spawn_enemy(self):
          # spawn the enemies on a timer and track them
-         # spawning one at a time for now
-         if pygame.time.get_ticks() - self.enemy_logic["last spawned"] > self.enemy_logic["spawn timer"] and len(self.enemy_logic["enemies"]) < 1:
+         if pygame.time.get_ticks() - self.enemy_logic["last spawned"] > self.enemy_logic["spawn timer"]:
              enemy = Enemy((self.to_coordinate(self.start[0], self.start[1])), 1)
              pygame.draw.circle(self.window, enemy.color, enemy.position, enemy.size)
              self.enemy_logic["enemies"].append(enemy)
@@ -242,7 +242,7 @@ class App:
                  enemy.last_moved = pygame.time.get_ticks()
                  if enemy.position == self.to_coordinate(self.path[enemy.next_block][0], self.path[enemy.next_block][1]):
                      enemy.next_block += 1
-             if enemy.next_block == len(self.path) or enemy.health == 0:
+             if enemy.next_block == len(self.path) or enemy.health < 1:
                  self.enemy_logic["enemies"].remove(enemy)
                  #print(len(self.enemy_logic["enemies"]))
 
@@ -252,18 +252,28 @@ class App:
          #first detect if enemy is in range of the tower
 
          for tower in self.towers:
-             if pygame.time.get_ticks() - tower.last_fired > 50:
+
+             if pygame.time.get_ticks() - tower.last_fired > tower.speed:
                  tower.last_fired = pygame.time.get_ticks()
-                 tower.enemy_in_range = False
+                 tower.enemies_in_range = []
+                 closest_distance = 100000000
+                 closest_enemy = None
                  for enemy in self.enemy_logic["enemies"]:
                      #print("Range: " + str(self.calc_in_game_unit() * tower.range))
                      tow_pos = (self.to_coordinate(tower.position[0], tower.position[1]))
-                     if math.dist(enemy.position, tow_pos) < self.calc_in_game_unit() * tower.range:
-                         tower.enemy_in_range = True
+                     distance = math.dist(enemy.position, tow_pos)
+                     if distance < self.calc_in_game_unit() * tower.range:
+                         tower.enemies_in_range.append(enemy)
+                         if distance < closest_distance:
+                             closest_distance = distance
+                             closest_enemy = enemy
 
 
-                 if tower.enemy_in_range:
+                 if len(tower.enemies_in_range) > 0:
+                     tower.last_fired = pygame.time.get_ticks()
                      self.grid[tower.position[0]][tower.position[1]]["color"] = (112,112,112)
+                     print("Fire!")
+                     closest_enemy.health -= tower.strength
                  else:
                      self.grid[tower.position[0]][tower.position[1]]["color"] = self.colors[3]
 
