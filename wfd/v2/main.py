@@ -3,6 +3,7 @@ import pygame
 from utils import Colors
 from utils import Button
 from utils import GameState
+from mapmaker import map_maker
 
 # boiler plate pygame stuff
 screen_size = (1920, 1080)
@@ -15,28 +16,63 @@ color = Colors.Color()
 play_button = Button.Button(Button.Type.MENU, (960, 180), "PLAY")
 mapmaker_button = Button.Button(Button.Type.MENU, (960, 540), "MAP MAKER")
 settings_button = Button.Button(Button.Type.MENU, (960, 900), "SETTINGS")
+
+menu_buttons = {
+    "play" : play_button.draw(pygame, window),
+    "mapmaker" : mapmaker_button.draw(pygame, window),
+    "settings" : settings_button.draw(pygame, window)
+    }
+
+#state is used to track what the game is doing
 state = GameState.State.MAIN_MENU
 
+def draw_menu_buttons():
+    menu_buttons = {
+        "play" : play_button.draw(pygame, window),
+        "mapmaker" : mapmaker_button.draw(pygame, window),
+        "settings" : settings_button.draw(pygame, window)
+        }
+
+
+
 def on_event(event):
+    global state
     # handle events
-    if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+    if event.type == pygame.KEYUP:
         if event.mod and pygame.K_ESCAPE:
             print("Exiting")
             close_gracefully()
-    pass
+
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        # will probably want to add a mousebuttonup validator to do the action
+        #can add clicked animation here
+        x,y = event.pos
+        for key in menu_buttons:
+            if menu_buttons[key].collidepoint(x, y):
+                if key == "play":
+                    state = GameState.State.PLAY
+                elif key == "mapmaker":
+                    state = GameState.State.MAP_MAKER
+                elif key == "settings":
+                    state = GameState.State.SETTINGS
 
 def close_gracefully():
     pygame.quit()
     quit()
 
 while True:
+    window.fill(color.background)
     for event in pygame.event.get():
-        window.fill(color.background)
         on_event(event)
 
-        if state == GameState.State.MAIN_MENU:
-            play_button.draw(pygame, window)
-            mapmaker_button.draw(pygame, window)
-            settings_button.draw(pygame, window)
+    if state == GameState.State.MAIN_MENU:
+        print("MAIN_MENU")
+        draw_menu_buttons()
+    elif state == GameState.State.MAP_MAKER:
+        print("hello")
+        map_maker.MapMaker(window).loop()
+    else:
+        print("There is nothing")
 
-        pygame.display.update()
+    pygame.display.update()
+    state = GameState.State.MAIN_MENU
