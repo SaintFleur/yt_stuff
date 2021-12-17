@@ -1,3 +1,5 @@
+"""Created By xirosum for entertainment purposes"""
+
 import pygame
 import json
 import math
@@ -258,7 +260,7 @@ class App:
                      tow_pos = (self.to_coordinate(tower.position[0], tower.position[1]))
                      if math.dist(enemy.position, tow_pos) < self.calc_in_game_unit() * tower.range:
                          tower.enemy_in_range = True
-                         
+
 
                  if tower.enemy_in_range:
                      self.grid[tower.position[0]][tower.position[1]]["color"] = (112,112,112)
