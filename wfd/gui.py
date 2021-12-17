@@ -345,7 +345,9 @@ class App:
              self.tower_action()
              self.on_loop()
              self.on_render()
+             self.clock.tick()
              pygame.display.update()
+             print(self.clock.get_fps())
 
 
          self.on_cleanup()
