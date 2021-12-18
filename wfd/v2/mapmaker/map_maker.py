@@ -83,6 +83,10 @@ class MapMaker:
                     "position": (i_coord, j_coord)
                     }
 
+    def generate_random_path(self):
+        pass
+
+
     def save_map(self):
         pass
 
