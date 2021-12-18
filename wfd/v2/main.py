@@ -18,9 +18,9 @@ mapmaker_button = Button.Button(Button.Type.MENU, (960, 540), "MAP MAKER")
 settings_button = Button.Button(Button.Type.MENU, (960, 900), "SETTINGS")
 
 menu_buttons = {
-    "play" : play_button.draw(pygame, window),
-    "mapmaker" : mapmaker_button.draw(pygame, window),
-    "settings" : settings_button.draw(pygame, window)
+    "play" : play_button.draw(window),
+    "mapmaker" : mapmaker_button.draw(window),
+    "settings" : settings_button.draw(window)
     }
 
 #state is used to track what the game is doing
@@ -28,9 +28,9 @@ state = GameState.State.MAIN_MENU
 
 def draw_menu_buttons():
     menu_buttons = {
-        "play" : play_button.draw(pygame, window),
-        "mapmaker" : mapmaker_button.draw(pygame, window),
-        "settings" : settings_button.draw(pygame, window)
+        "play" : play_button.draw(window),
+        "mapmaker" : mapmaker_button.draw(window),
+        "settings" : settings_button.draw(window)
         }
 
 
@@ -71,6 +71,7 @@ while True:
     elif state == GameState.State.MAP_MAKER:
         print("hello")
         map_maker.MapMaker(window).loop()
+        pygame.event.get()
     else:
         print("There is nothing")
 
