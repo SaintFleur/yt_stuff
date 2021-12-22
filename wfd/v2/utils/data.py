@@ -10,30 +10,6 @@ class Space_Type(Enum):
     START = 4
     END   = 5
 
-    def next(self):
-        cls = self.__class__
-        members = list(cls)
-        index = members.index(self) + 1
-        if index >= len(members):
-            # to cycle around
-            index = 0
-            #
-            # to error out
-            # raise StopIteration('end of enumeration reached')
-        return members[index]
-
-    def prev(self):
-        cls = self.__class__
-        members = list(cls)
-        index = members.index(self) - 1
-        if index < 0:
-            # to cycle around
-            index = len(members) - 1
-            #
-            # to error out
-            #raise StopIteration('beginning of enumeration reached')
-        return members[index]
-
 class Space_Colors:
     def __init__(self):
         self.color_map = {
@@ -44,4 +20,14 @@ class Space_Colors:
             Space_Type.START : (239,39,166),
             Space_Type.END   : (255,34,12)
 
+        }
+class Space_Names:
+    def __init__(self):
+        self.name_map = {
+        Space_Type.EMPTY : "Empty",
+        Space_Type.GRASS : "Grass",
+        Space_Type.PATH  : "Path",
+        Space_Type.TOWER : "Tower", #will probably need to change to holding cell
+        Space_Type.START : "Start",
+        Space_Type.END   : "End"
         }

@@ -66,10 +66,8 @@ while True:
         on_event(event)
 
     if state == GameState.State.MAIN_MENU:
-        print("MAIN_MENU")
         draw_menu_buttons()
     elif state == GameState.State.MAP_MAKER:
-        print("hello")
         map_maker.MapMaker(window).loop()
         pygame.event.get()
     else:
