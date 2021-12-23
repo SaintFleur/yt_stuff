@@ -3,6 +3,7 @@ from enum import Enum
 import math
 import pygame.gfxdraw as pygfx
 from utils import Colors
+
 class tower:
     def __init__(self, position):
         self.level = 0
@@ -44,7 +45,7 @@ class tower:
 
     def level_up(self):
         pass
-        
+
     def closest_targeting(self):
         pass
 

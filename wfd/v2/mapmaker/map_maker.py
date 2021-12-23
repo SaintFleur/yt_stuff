@@ -9,6 +9,7 @@ import math
 import json
 import pygame
 import copy
+import pygame.gfxdraw
 
 class MapMaker:
     def __init__(self, window):
@@ -20,6 +21,8 @@ class MapMaker:
         self.grid_padding = 2
         self.grid = {}
         self.path = []
+        self.pixel_path = []
+        self.pixel_path_total = 0
         # shouldn't be hard coded
         self.start = (0,9)
         self.end = ()
@@ -235,6 +238,41 @@ class MapMaker:
                     end_not_found = False
                     print("INVALID MAP")
 
+    def calculate_pixel_path(self):
+        # get the center of the starting grid space_name
+        # get the center of the next grid_space
+
+        current = self.grid[self.start[0]][self.start[1]]["rect"].center
+
+        self.pixel_path = [current]
+
+        for i in range(1,len(self.path)):
+            target = self.grid[self.path[i][0]][self.path[i][1]]["rect"].center
+            print("Delimenator: " + str(i))
+            print(self.path[i])
+            if i == 3 :
+                print("Current: " + str(current))
+                print("Target: " + str(target))
+            while target[0] !=  current[0] or target[1] != current[1]:
+                if i == 3 :
+                    print("Current: " + str(current))
+                    print("Target: " + str(target))
+                if  target[0] > current[0]:
+                    current = (current[0] + 1, current[1])
+                    self.pixel_path.append(current)
+                if  current[1] < target[1]:
+                    current = (current[0], current[1] + 1)
+                    self.pixel_path.append(current)
+                if  target[0] < current[0]:
+                    current = (current[0] - 1, current[1])
+                    self.pixel_path.append(current)
+                if  current[1] > target[1]:
+                    current = (current[0], current[1] - 1)
+                    #print(current)
+                    self.pixel_path.append(current)
+
+        self.pixel_path_total = len(self.pixel_path)
+
     def locate_towers(self):
         for i_key in self.grid:
             for j_key in self.grid[i_key]:
@@ -242,13 +280,14 @@ class MapMaker:
                     self.towers.append(tower.tower((i_key, j_key)))
 
     def spawn_enemy(self):
-        self.enemies.append(enemy.Enemy(self.grid[self.start[0]][self.start[1]]["rect"].center, self.path[1:], self.grid))
+        self.enemies.append(enemy.Enemy(self.grid[self.start[0]][self.start[1]]["rect"].center, self.path[1:], self.grid, pygame.time.get_ticks()))
 
     def loop(self):
         self.running = True
         self.generate_map()
         self.load_map()
         self.solve_map()
+        self.calculate_pixel_path()
 
         self.spawn_enemy()
 
@@ -256,6 +295,7 @@ class MapMaker:
 
         self.locate_towers()
         while self.running:
+
             time = pygame.time.get_ticks()
             self.clock.tick()
 
@@ -263,7 +303,7 @@ class MapMaker:
             if len(self.last_ten_frame_rates) > 10:
                 self.last_ten_frame_rates.pop(0)
 
-            print("Average Frame Rate: " + str(sum(self.last_ten_frame_rates)/10))
+            #print("Average Frame Rate: " + str(sum(self.last_ten_frame_rates)/10))
 
             self.window.fill(self.color.background)
             for event in pygame.event.get():
@@ -273,9 +313,11 @@ class MapMaker:
 
             self.draw_map()
             for enem in self.enemies:
-                enem.move()
+                enem.move(self.pixel_path)
                 enem.draw(self.window)
                 if enem.health <= 0:
+                    self.enemies.remove(enem)
+                if enem.pos_index == self.pixel_path_total:
                     self.enemies.remove(enem)
 
             for tow in self.towers:
@@ -283,14 +325,15 @@ class MapMaker:
                     tow.attack(self.enemies, self.rect_size + self.grid_padding, self.window, time)
                     tow.draw_range(self.rect_size + self.grid_padding, self.window)
 
-            if time - self.last_spawn > 5000:
+            if time - self.last_spawn > 500 and len(self.enemies) < 1:
                 self.spawn_enemy()
                 self.last_spawn = time
+
+            for _ in self.pixel_path:
+                pygame.gfxdraw.pixel(self.window, *_, Colors.Color().health_green)
 
             if self.selected:
                 self.draw_selected_info()
 
-            if len(self.enemies) > 3:
-                self.running = False
             pygame.display.update()
         #next is the tower logic
