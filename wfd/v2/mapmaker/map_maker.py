@@ -5,6 +5,7 @@
     """
 from utils import Colors, Button, enemy, tower
 from utils.data import Space_Type, Space_Colors, Space_Names
+import math
 import json
 import pygame
 import copy
@@ -42,6 +43,7 @@ class MapMaker:
                 }, #add clear pause and simulate button
             }
 
+        self.last_ten_frame_rates = []
 
         self.selected = None #will be able to select square and give options for what to do
         self.clock = pygame.time.Clock()
@@ -244,7 +246,6 @@ class MapMaker:
 
     def loop(self):
         self.running = True
-        print("Hello")
         self.generate_map()
         self.load_map()
         self.solve_map()
@@ -255,6 +256,15 @@ class MapMaker:
 
         self.locate_towers()
         while self.running:
+            time = pygame.time.get_ticks()
+            self.clock.tick()
+
+            self.last_ten_frame_rates.append(self.clock.get_fps())
+            if len(self.last_ten_frame_rates) > 10:
+                self.last_ten_frame_rates.pop(0)
+
+            print("Average Frame Rate: " + str(sum(self.last_ten_frame_rates)/10))
+
             self.window.fill(self.color.background)
             for event in pygame.event.get():
                 self.on_event(event)
@@ -262,25 +272,25 @@ class MapMaker:
             self.draw_buttons()
 
             self.draw_map()
-
             for enem in self.enemies:
                 enem.move()
                 enem.draw(self.window)
                 if enem.health <= 0:
                     self.enemies.remove(enem)
 
-
             for tow in self.towers:
-                if pygame.time.get_ticks() - tow.last_attack >= tow.hit_speed * 1000:
-                    tow.attack(self.enemies, self.rect_size + self.grid_padding, self.window, pygame.time.get_ticks() )
+                if time - tow.last_attack >= tow.hit_speed * 1000:
+                    tow.attack(self.enemies, self.rect_size + self.grid_padding, self.window, time)
                     tow.draw_range(self.rect_size + self.grid_padding, self.window)
-            #just for testing
-            # if enem.health > 0 and pygame.time.get_ticks() - last_hit > 1000:
-            #     last_hit = pygame.time.get_ticks()
-            #     enem.health -= 1
+
+            if time - self.last_spawn > 5000:
+                self.spawn_enemy()
+                self.last_spawn = time
 
             if self.selected:
                 self.draw_selected_info()
 
+            if len(self.enemies) > 3:
+                self.running = False
             pygame.display.update()
         #next is the tower logic

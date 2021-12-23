@@ -31,7 +31,7 @@ class tower:
         if tracked_enemy:
             tracked_enemy.health -= self.damage
             if tracked_enemy.health == 0:
-                self.enemie_destroyed += 1 
+                self.enemie_destroyed += 1
             self.last_attack = ticks
 
 
@@ -40,7 +40,11 @@ class tower:
         translated_position = (int(self.position[0] * map_factor + (map_factor - 1)/2), int(self.position[1] * map_factor + (map_factor - 1)/2))
         pygfx.aacircle(window,*translated_position, translated_range, Colors.Color().health_red)
     # place_holders
-    #not using them now but some good options for later
+    # not using them now but some good options for later
+
+    def level_up(self):
+        pass
+        
     def closest_targeting(self):
         pass
 

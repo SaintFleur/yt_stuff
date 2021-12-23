@@ -66,6 +66,6 @@ class Enemy:
             self.position = (self.position[0], self.position[1] - 1)
 
         self.distance_to_next_target_pos = math.dist(target_pos, self.position)
-        
+
         if target_pos == self.position:
             self.pathing_list.pop(0)
