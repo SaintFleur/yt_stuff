@@ -2,6 +2,7 @@
 from enum import Enum
 import pygame
 from utils import Colors
+import math
 
 class enemy_type(Enum):
     PAWN = 0
@@ -18,6 +19,7 @@ class Enemy:
         self.size = (35,35)
         self.grid = grid
         self.position = pos
+        self.distance_to_next_target_pos = 0
 
     def draw(self, window):
         position = self.position[0] - self.size[0]/2, self.position[1] - self.size[1]/2
@@ -63,5 +65,7 @@ class Enemy:
         if self.position[1] > target_pos[1]:
             self.position = (self.position[0], self.position[1] - 1)
 
+        self.distance_to_next_target_pos = math.dist(target_pos, self.position)
+        
         if target_pos == self.position:
             self.pathing_list.pop(0)

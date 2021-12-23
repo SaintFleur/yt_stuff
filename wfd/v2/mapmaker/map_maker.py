@@ -3,10 +3,8 @@
     Generating new maps and play testing.
     Saving and validating maps
     """
-from utils import Colors
-from utils import Button
+from utils import Colors, Button, enemy, tower
 from utils.data import Space_Type, Space_Colors, Space_Names
-from utils import enemy
 import json
 import pygame
 import copy
@@ -193,7 +191,9 @@ class MapMaker:
         return True
 
     def solve_map(self):
-        #For now only solve for one path
+        # For now only solve for one path
+        # TODO: Make more robust handle invalid maps
+
         end_not_found = True
 
         visited = [self.start]
@@ -233,7 +233,14 @@ class MapMaker:
                     end_not_found = False
                     print("INVALID MAP")
 
-        print(self.path)
+    def locate_towers(self):
+        for i_key in self.grid:
+            for j_key in self.grid[i_key]:
+                if self.grid[i_key][j_key]["type"] == Space_Type.TOWER:
+                    self.towers.append(tower.tower((i_key, j_key)))
+
+    def spawn_enemy(self):
+        self.enemies.append(enemy.Enemy(self.grid[self.start[0]][self.start[1]]["rect"].center, self.path[1:], self.grid))
 
     def loop(self):
         self.running = True
@@ -241,10 +248,12 @@ class MapMaker:
         self.generate_map()
         self.load_map()
         self.solve_map()
-        enem = enemy.Enemy(self.grid[self.start[0]][self.start[1]]["rect"].center, self.path, self.grid)
-        enem.pathing_list.pop(0)
+
+        self.spawn_enemy()
 
         last_hit = pygame.time.get_ticks()
+
+        self.locate_towers()
         while self.running:
             self.window.fill(self.color.background)
             for event in pygame.event.get():
@@ -253,10 +262,18 @@ class MapMaker:
             self.draw_buttons()
 
             self.draw_map()
-            if enem.pathing_list:
+
+            for enem in self.enemies:
                 enem.move()
                 enem.draw(self.window)
+                if enem.health <= 0:
+                    self.enemies.remove(enem)
 
+
+            for tow in self.towers:
+                if pygame.time.get_ticks() - tow.last_attack >= tow.hit_speed * 1000:
+                    tow.attack(self.enemies, self.rect_size + self.grid_padding, self.window, pygame.time.get_ticks() )
+                    tow.draw_range(self.rect_size + self.grid_padding, self.window)
             #just for testing
             # if enem.health > 0 and pygame.time.get_ticks() - last_hit > 1000:
             #     last_hit = pygame.time.get_ticks()
