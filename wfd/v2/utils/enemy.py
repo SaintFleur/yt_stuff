@@ -12,8 +12,8 @@ class enemy_type(Enum):
 
 class Enemy:
     def __init__(self, pos, pathing_list, grid, time):
-        self.health = 1000
-        self.starting_health = 1000
+        self.health = 20
+        self.starting_health = 20
         self.speed = 1 # one grid space a second
         self.pathing_list = pathing_list # list of next grid space to visit
         self.size = (35,35)

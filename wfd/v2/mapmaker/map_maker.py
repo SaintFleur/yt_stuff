@@ -325,7 +325,7 @@ class MapMaker:
                     tow.attack(self.enemies, self.rect_size + self.grid_padding, self.window, time)
                     tow.draw_range(self.rect_size + self.grid_padding, self.window)
 
-            if time - self.last_spawn > 500 and len(self.enemies) < 1:
+            if time - self.last_spawn > 2000:
                 self.spawn_enemy()
                 self.last_spawn = time
 
