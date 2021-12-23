@@ -24,7 +24,7 @@ menu_buttons = {
     }
 
 #state is used to track what the game is doing
-state = GameState.State.MAIN_MENU
+state = GameState.State.MAP_MAKER
 
 def draw_menu_buttons():
     menu_buttons = {

@@ -21,9 +21,15 @@ class MapMaker:
         self.grid_padding = 2
         self.grid = {}
         self.path = []
+        # shouldn't be hard coded
         self.start = (0,9)
         self.end = ()
         self.towers = []
+
+        # going to need to change this into it's own controller that can receive signals
+        self.last_spawn = 0
+        self.enemies = []
+
         self.slb_buttons = {
             "save" : {
                 "button" : Button.Button(Button.Type.MAP_MAKER_SLB, (1200, 880), "SAVE"),
@@ -40,6 +46,7 @@ class MapMaker:
 
 
         self.selected = None #will be able to select square and give options for what to do
+        self.clock = pygame.time.Clock()
 
     def on_event(self, event):
         if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
@@ -208,16 +215,16 @@ class MapMaker:
                 down = (checking[0] , checking[1] + 1)
                 up = (checking[0] , checking[1] - 1)
 
-                if self.in_map(left) and self.grid[left[0]][left[1]]["type"] == Space_Type.PATH and left not in visited:
+                if self.in_map(left) and self.grid[left[0]][left[1]]["type"] in (Space_Type.PATH, Space_Type.END) and left not in visited:
                     to_check.append(left)
                     self.path.append(left)
-                if self.in_map(right) and self.grid[right[0]][right[1]]["type"] == Space_Type.PATH  and right not in visited:
+                if self.in_map(right) and self.grid[right[0]][right[1]]["type"] in (Space_Type.PATH, Space_Type.END)  and right not in visited:
                     to_check.append(right)
                     self.path.append(right)
-                if self.in_map(down) and self.grid[down[0]][down[1]]["type"] == Space_Type.PATH and down not in visited:
+                if self.in_map(down) and self.grid[down[0]][down[1]]["type"] in (Space_Type.PATH, Space_Type.END) and down not in visited:
                     to_check.append(down)
                     self.path.append(down)
-                if self.in_map(up) and self.grid[up[0]][up[1]]["type"] == Space_Type.PATH and not up in visited:
+                if self.in_map(up) and self.grid[up[0]][up[1]]["type"] in (Space_Type.PATH, Space_Type.END) and not up in visited:
                     to_check.append(up)
                     self.path.append(up)
 
@@ -236,6 +243,8 @@ class MapMaker:
         self.solve_map()
         enem = enemy.Enemy(self.grid[self.start[0]][self.start[1]]["rect"].center, self.path, self.grid)
         enem.pathing_list.pop(0)
+
+        last_hit = pygame.time.get_ticks()
         while self.running:
             self.window.fill(self.color.background)
             for event in pygame.event.get():
@@ -247,9 +256,14 @@ class MapMaker:
             if enem.pathing_list:
                 enem.move()
                 enem.draw(self.window)
+
+            #just for testing
+            # if enem.health > 0 and pygame.time.get_ticks() - last_hit > 1000:
+            #     last_hit = pygame.time.get_ticks()
+            #     enem.health -= 1
+
             if self.selected:
                 self.draw_selected_info()
 
             pygame.display.update()
-        # handle the game loop here
-        pass
+        #next is the tower logic

@@ -1,6 +1,7 @@
 """Holds enemy prefabs for now basic logic"""
 from enum import Enum
 import pygame
+from utils import Colors
 
 class enemy_type(Enum):
     PAWN = 0
@@ -13,12 +14,13 @@ class Enemy:
         self.health = 10
         self.starting_health = 10
         self.speed = 1
-        self.position = pos
         self.pathing_list = pathing_list # list of next grid space to visit
-        self.size = (40,40)
+        self.size = (35,35)
         self.grid = grid
+        self.position = pos
 
     def draw(self, window):
+        position = self.position[0] - self.size[0]/2, self.position[1] - self.size[1]/2
         pic = pygame.image.load("resources/images/mxc_pfp.png")
         pic = pygame.transform.scale(pic, self.size)
 
@@ -36,9 +38,17 @@ class Enemy:
         cropped_pic.blit(pic, (0,0))
         cropped_pic.blit(image, (0,0))
 
-        window.blit(cropped_pic, (self.position[0] - self.size[0]/2, self.position[1] - self.size[1]/2))
+        window.blit(cropped_pic, position)
+
+        # health bar : simpler than I thought but may need to increase logic
+        health_percent = self.health / self.starting_health
+        pygame.draw.rect(window, Colors.Color().health_red, (position[0] , position[1] + 37, self.size[0], 4 ))
+        pygame.draw.rect(window, Colors.Color().health_green, (position[0] , position[1] + 37, self.size[0] * health_percent, 4 ))
+
+
 
     def move(self):
+        #change to move based on time
         target_pos = self.grid[self.pathing_list[0][0]][self.pathing_list[0][1]]["rect"].center
 
         if self.position[0] < target_pos[0]:
