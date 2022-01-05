@@ -3,8 +3,9 @@
     Generating new maps and play testing.
     Saving and validating maps
     """
-from utils import Colors, Button, enemy, tower
+from utils import Colors, Button, enemy, tower, preview_card
 from utils.data import Space_Type, Space_Colors, Space_Names
+from utils.preview_card import Preview
 import math
 import json
 import pygame
@@ -179,16 +180,10 @@ class MapMaker:
 
         grid_options = []
 
-        for i in range(len(list(Space_Type))):
-
-            pass
+        preview = Preview(self.window)
 
         # TODO: deselect
         # TODO: brushes, being able to paint the path
-
-    def check_neighbours(self, pos, visited):
-
-        pass
 
     def in_map(self, pos):
         if pos[0] < 0 or pos[1] < 0 or pos[0] > self.grid_size - 1 or pos[1] > self.grid_size - 1:
